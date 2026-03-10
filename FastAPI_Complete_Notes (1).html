@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FastAPI Complete Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f6fa;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --primary: #2563eb;
+    --primary-light: #eff6ff;
+    --red: #dc2626;
+    --green: #16a34a;
+    --purple: #7c3aed;
+    --text: #1e293b;
+    --muted: #64748b;
+    --code-bg: #ffffff;
+    --code-border: #cbd5e1;
+    --extra-border: #2563eb;
+    --extra-bg: #eff6ff;
+    --run-bg: #f0fdf4;
+    --out-bg: #faf5ff;
+    --def-bg: #eff6ff;
+    --def-border: #2563eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 860px; margin: 0 auto; }
+
+  /* PAGE */
+  .page {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    page-break-after: always;
+  }
+  .page-num {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+  }
+
+  /* TITLE */
+  .main-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+  hr.thick { border: none; border-top: 2.5px solid var(--text); margin: 8px 0 16px; }
+  hr.thin  { border: none; border-top: 1px solid var(--border); margin: 6px 0 12px; }
+
+  /* HEADINGS */
+  h2 { font-size: 15px; font-weight: 700; color: var(--text); margin: 14px 0 6px; }
+  h3 { font-size: 13.5px; font-weight: 700; color: var(--red); margin: 10px 0 4px; }
+  h4 { font-size: 12.5px; font-weight: 700; color: var(--primary); margin: 8px 0 4px; }
+  p  { font-size: 12.5px; margin-bottom: 5px; }
+  ul { list-style: none; padding-left: 14px; }
+  ul li { font-size: 12.5px; margin-bottom: 3px; }
+  ul li::before { content: "• "; color: var(--primary); font-weight: 700; }
+
+  /* DEFINITION BOX */
+  .def-box {
+    background: var(--def-bg);
+    border-left: 4px solid var(--def-border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    margin: 8px 0 12px;
+    line-height: 1.7;
+  }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 14px; font-size: 12px; }
+  th { background: var(--text); color: white; padding: 8px 10px; text-align: left; }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  tr:nth-child(even) td { background: #f8fafc; }
+  td:last-child { background: var(--primary-light) !important; color: var(--primary); font-weight: 600; }
+
+  /* CODE BLOCK — VS Code Dark Theme */
+  .code-block {
+    border: 1px solid #3c3c3c;
+    border-radius: 8px;
+    margin: 10px 0 16px;
+    overflow: hidden;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .code-block.extra {
+    border-color: #4a9eff;
+    border-width: 1.5px;
+  }
+  .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2d2d2d;
+    padding: 7px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #cccccc;
+    border-bottom: 1px solid #3c3c3c;
+  }
+  .code-block.extra .code-header {
+    background: #1e3a5f;
+    color: #4a9eff;
+    border-bottom-color: #4a9eff;
+  }
+  .copy-btn {
+    background: #0e639c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    transition: background 0.2s;
+  }
+  .copy-btn:hover { background: #1177bb; }
+  .copy-btn.copied { background: #16a34a; }
+  .code-body {
+    background: #1e1e1e;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.8;
+    white-space: pre;
+    overflow-x: auto;
+    color: #d4d4d4;
+  }
+  /* VS Code Syntax Colors */
+  .code-body .kw   { color: #569cd6; }   /* blue — from, import, class, def */
+  .code-body .fn   { color: #dcdcaa; }   /* yellow — function names */
+  .code-body .cl   { color: #4ec9b0; }   /* teal — class names */
+  .code-body .st   { color: #ce9178; }   /* orange — strings */
+  .code-body .cm   { color: #6a9955; font-style: italic; } /* green — comments */
+  .code-body .nb   { color: #b5cea8; }   /* light green — numbers */
+  .code-body .dc   { color: #c586c0; }   /* pink — decorators */
+  .code-body .op   { color: #d4d4d4; }   /* white — operators */
+  .code-body .bi   { color: #4fc1ff; }   /* light blue — builtins/self */
+
+  .code-run {
+    background: #0f2a1a;
+    border-top: 1px solid #1a4a2a;
+    padding: 7px 14px;
+    font-size: 11.5px;
+    color: #4ec9b0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .code-run span { font-weight: 700; color: #23d18b; }
+  .code-output {
+    background: #1a1a2e;
+    border-top: 1px solid #2a2a4a;
+    padding: 7px 14px;
+    font-size: 11.5px;
+    color: #9cdcfe;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: pre-wrap;
+  }
+  .code-output span { font-weight: 700; color: #c586c0; }
+
+  @media print {
+    body { padding: 0; background: white; }
+    .page { box-shadow: none; border: none; margin-bottom: 0; padding: 28px 32px; }
+    .copy-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ═══ PAGE 1 ═══ -->
+<div class="page">
+  <div class="page-num">Page 1</div>
+  <div class="main-title">FASTAPI</div>
+  <hr class="thick">
+
+  <h4>📌 Definition (Added):</h4>
+  <div class="def-box">
+    <b>FastAPI</b> is a Python framework used to build APIs quickly and easily. It automatically checks data types, handles errors, and creates API documentation — all by itself.
+  </div>
+
+  <h2>What Problem Exist Before FastAPI?</h2><hr class="thin">
+  <p>Imagine you are building a backend for:</p>
+  <ul><li>i) A website</li><li>ii) A mobile app</li><li>iii) An AI system</li></ul>
+  <p>→ They all need to talk to a server.</p>
+
+  <h3>Old Problem:</h3>
+  <ul><li>i) Nothing — APIs was slow.</li><li>ii) Validation had not to be written manually.</li><li>iii) Fancy name, at run time.</li><li>iv) Performance was not great.</li></ul>
+
+  <p><b>FastAPI</b> is a modern Python Framework used to build APIs easily and very fast.</p>
+
+  <h3>2) Why We Need FastAPI:</h3><hr class="thin">
+  <p>Backend development felt heavy and messy.</p>
+
+  <h4>i) Manual Validation:</h4>
+  <p><b>Before:</b> Manual validation written by developer for every field.</p>
+
+  <h4>✅ With FastAPI:</h4>
+  <p>If type(age) is <b>int</b>, sending "hello" → raises automatic validation error. Clean code and easy.</p>
+
+  <h4>ii) No API Documentation:</h4>
+  <ul><li>Use Postman separately</li><li>Write others separately</li></ul>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Code:</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <div class="code-body">from fastapi import FastAPI
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello World"}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+INFO: Uvicorn running on http://127.0.0.1:8000
+-> Visit http://127.0.0.1:8000/docs  (Swagger UI auto-generated!)</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header">
+      <span>✨ Extra Code Example:</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <div class="code-body"># FastAPI auto-validates data types
+from fastapi import FastAPI
+app = FastAPI()
+
+@app.get("/age/{age}")
+def check_age(age: int):
+    return {"your_age": age}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload  then visit /age/25</div>
+    <div class="code-output"><span>📤 Output:</span>
+{"your_age": 25}
+# If you send /age/hello  ->  422 Unprocessable Entity (auto error!)</div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 2 ═══ -->
+<div class="page">
+  <div class="page-num">Page 2</div>
+  <h2>With FastAPI:</h2><hr class="thin">
+  <ul><li>There's auto documentation</li><li>Fill error to avoid read</li><li>Handles everything</li></ul>
+
+  <h3>iii) Slow Performance:</h3>
+  <ul><li>Handles many requests efficiently</li><li>Use in old systems</li></ul>
+
+  <h2>Why FastAPI is Better than Competitors?</h2><hr class="thin">
+  <table>
+    <tr><th>Feature</th><th>Flask</th><th>Django</th><th>FastAPI</th></tr>
+    <tr><td>Speed</td><td>Medium</td><td>Slow</td><td>Fast</td></tr>
+    <tr><td>Validation</td><td>Manual</td><td>Manual</td><td>Automatic</td></tr>
+    <tr><td>Docs</td><td>Manual</td><td>Manual</td><td>Auto (Swagger)</td></tr>
+    <tr><td>Modern APIs</td><td>No</td><td>No</td><td>Yes</td></tr>
+  </table>
+
+  <h2>How FastAPI Works Internally:</h2><hr class="thin">
+  <ul><li>FastAPI sends request, reads URL, checks parameters</li><li>Validates data, function runs, converts output to JSON</li><li>Sends response — all automatically!</li></ul>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI
+app = FastAPI()
+# Internally FastAPI:
+# 1. Receives request
+# 2. Reads URL & matches route
+# 3. Checks parameters
+# 4. Validates data (Pydantic)
+# 5. Runs your function
+# 6. Converts output to JSON
+# 7. Sends response</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> FastAPI handles all 7 steps automatically!</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Seeing FastAPI speed with async
+from fastapi import FastAPI
+import asyncio
+app = FastAPI()
+
+@app.get("/fast")
+async def fast_response():
+    await asyncio.sleep(0)  # non-blocking
+    return {"speed": "blazing fast!"}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> GET /fast  ->  {"speed": "blazing fast!"}</div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 3 ═══ -->
+<div class="page">
+  <div class="page-num">Page 3</div>
+  <h2>Move to Code — Simple Example (Hello World)</h2><hr class="thin">
+
+  <div class="code-block">
+    <div class="code-header"><span>Code: main.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># main.py
+from fastapi import FastAPI
+app = FastAPI()          # create application
+
+@app.get("/")
+def home():
+    return {"message": "hello"}   # Data in dict</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+{"message": "hello"}
+-> Visit http://127.0.0.1:8000/docs for Swagger UI</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Multiple routes example
+from fastapi import FastAPI
+app = FastAPI()
+
+@app.get("/")
+def home():
+    return {"page": "home"}
+
+@app.get("/about")
+def about():
+    return {"page": "about", "author": "FastAPI Dev"}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /      ->  {"page": "home"}
+GET /about ->  {"page": "about", "author": "FastAPI Dev"}</div>
+  </div>
+
+  <h2>Swagger UI:</h2><hr class="thin">
+  <ul><li>Open browser — visit /docs</li><li>i) Test APIs with URL</li><li>ii) Send data, see response in browser</li></ul>
+
+  <h2>FastAPI: HTTP Methods</h2><hr class="thin">
+  <h3>i) GET:</h3>
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI
+app = FastAPI()
+
+@app.get("/rest")
+def get_user(user_id: int):
+    return {"user_id": user_id}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> GET /rest?user_id=1  ->  {"user_id": 1}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># GET with list of items
+from fastapi import FastAPI
+app = FastAPI()
+
+items = ["apple", "banana", "cherry"]
+
+@app.get("/items")
+def get_items():
+    return {"items": items}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> GET /items  ->  {"items": ["apple", "banana", "cherry"]}</div>
+  </div>
+
+  <h3>ii) POST:</h3>
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI
+from pydantic import BaseModel
+app = FastAPI()
+
+class User(BaseModel):
+    name: str
+    age: int
+
+@app.post("/create")
+def create(name: str, age: int):
+    return {"created": name, "age": age}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> POST /create  ->  {"created": "Ali", "age": 25}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># POST with Pydantic model
+from fastapi import FastAPI
+from pydantic import BaseModel
+app = FastAPI()
+
+class Item(BaseModel):
+    name: str
+    price: float
+
+@app.post("/items")
+def create_item(item: Item):
+    return {"item_name": item.name, "price": item.price}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST /items  body: {"name":"Book","price":9.99}
+->  {"item_name": "Book", "price": 9.99}</div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 4 ═══ -->
+<div class="page">
+  <div class="page-num">Page 4</div>
+  <h3>iii) PUT — Replace All:</h3>
+  <p>Get=read, Post=create, Put=replace all, Patch=update certain, Delete=remove</p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">@app.put("/replace/{user_id}")
+def replace(user_id: int, name: str, age: int):
+    return {"replaced": user_id, "name": name, "age": age}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> PUT /replace/1  ->  {"replaced": 1, "name": "Ali", "age": 25}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># PUT to update full user record
+from fastapi import FastAPI
+from pydantic import BaseModel
+app = FastAPI()
+
+class User(BaseModel):
+    name: str
+    email: str
+
+@app.put("/users/{user_id}")
+def update_user(user_id: int, user: User):
+    return {"id": user_id, "updated": user}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> PUT /users/5  ->  {"id":5,"updated":{"name":"Ali","email":"ali@mail.com"}}</div>
+  </div>
+
+  <h3>iv) PATCH:</h3>
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">@app.patch("/users/{user_id}")
+def patch_user(user_id: int, name: str = None):
+    return {"patched_id": user_id, "name": name}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> PATCH /users/3?name=Ahmed  ->  {"patched_id": 3, "name": "Ahmed"}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># PATCH only specific field
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import Optional
+app = FastAPI()
+
+class PartialUser(BaseModel):
+    name: Optional[str] = None
+    age:  Optional[int] = None
+
+@app.patch("/update/{uid}")
+def partial_update(uid: int, data: PartialUser):
+    return {"id": uid, "changes": data}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+PATCH /update/2  body: {"age": 30}
+->  {"id": 2, "changes": {"name": null, "age": 30}}</div>
+  </div>
+
+  <h3>v) DELETE:</h3>
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">@app.delete("/users/{user_id}")
+def delete_user(user_id: int):
+    return {"deleted": user_id}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> DELETE /users/1  ->  {"deleted": 1}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># DELETE with confirmation message
+from fastapi import FastAPI
+app = FastAPI()
+
+users = {1: "Ali", 2: "Sara", 3: "Ahmed"}
+
+@app.delete("/users/{uid}")
+def remove_user(uid: int):
+    if uid in users:
+        removed = users.pop(uid)
+        return {"message": f"{removed} deleted"}
+    return {"error": "User not found"}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+DELETE /users/1  ->  {"message": "Ali deleted"}
+DELETE /users/9  ->  {"error": "User not found"}</div>
+  </div>
+
+  <h2>Parameters:</h2><hr class="thin">
+  <p>Used to identify a specific resource. Path — used to specifically identify a resource.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">@app.get("/users/{id}")
+def get_user(id: int):
+    return {"user_id": id}
+# i)  id — value comes from URL
+# ii) int — check type from URL
+# iii) function runs if data valid</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /users/5    ->  {"user_id": 5}
+GET /users/abc  ->  422 Unprocessable Entity</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Multiple path parameters
+from fastapi import FastAPI
+app = FastAPI()
+
+@app.get("/users/{user_id}/posts/{post_id}")
+def get_post(user_id: int, post_id: int):
+    return {"user_id": user_id, "post_id": post_id}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> GET /users/1/posts/3  ->  {"user_id": 1, "post_id": 3}</div>
+  </div>
+</div>
+
+<!-- ═══ PAGE 5 ═══ -->
+<div class="page">
+  <div class="page-num">Page 5</div>
+  <h2>Query Parameters:</h2><hr class="thin">
+  <p>Query parameter use &amp; filtering at searching.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI
+app = FastAPI()
+
+@app.get("/user-search")
+def search(search: str = None, item: str = None):
+    return {"search": search, "item": item}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> GET /user-search?search=Ali  ->  {"search": "Ali", "item": null}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Query param with limit & skip (pagination)
+from fastapi import FastAPI
+app = FastAPI()
+
+items = ["a","b","c","d","e","f","g","h","i","j"]
+
+@app.get("/items")
+def get_items(skip: int = 0, limit: int = 3):
+    return {"items": items[skip : skip + limit]}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /items?skip=0&limit=3  ->  {"items": ["a", "b", "c"]}
+GET /items?skip=3&limit=3  ->  {"items": ["d", "e", "f"]}</div>
+  </div>
+
+  <h3>Optional Query Parameter by nature:</h3>
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">@app.get("/user")
+def get_user(category: str = None):
+    if category:
+        return {"category": category, "items": f"items of {category}"}
+    return {"category": "none", "all items": "showing all"}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /user              ->  {"category":"none","all items":"showing all"}
+GET /user?category=bag ->  {"category":"bag","items":"items of bag"}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Optional query param with default value
+from fastapi import FastAPI
+from typing import Optional
+app = FastAPI()
+
+@app.get("/search")
+def search(q: Optional[str] = None, page: int = 1):
+    return {"query": q, "page": page}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /search           ->  {"query": null, "page": 1}
+GET /search?q=python  ->  {"query": "python", "page": 1}</div>
+  </div>
+
+  <h2>Body Parameter:</h2><hr class="thin">
+  <p>Optional mean: may or may not send it. Default = None. Body Parameter — used when client sends structured data (JSON).</p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI
+from pydantic import BaseModel
+app = FastAPI()
+
+class User(BaseModel):
+    name: str
+    age: int
+
+@app.post("/users")
+def create_user(user: User):
+    return {"created": user.name, "age": user.age}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST /users  body: {"name": "Ali", "age": 22}
+->  {"created": "Ali", "age": 22}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Body with multiple fields validation
+from fastapi import FastAPI
+from pydantic import BaseModel
+app = FastAPI()
+
+class Product(BaseModel):
+    name: str
+    price: float
+    in_stock: bool
+
+@app.post("/products")
+def add_product(product: Product):
+    return {"product": product.name, "price": product.price,
+            "available": product.in_stock}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST /products  body: {"name":"Pen","price":1.5,"in_stock":true}
+->  {"product": "Pen", "price": 1.5, "available": true}</div>
+  </div>
+</div>
+
+<!-- PAGES 6-15: Continue same pattern -->
+<!-- ═══ PAGE 6 ═══ -->
+<div class="page">
+  <div class="page-num">Page 6</div>
+  <h2>Pydantic Model:</h2><hr class="thin">
+  <p>Real Life: sign up form, payment info</p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from pydantic import BaseModel
+from fastapi import FastAPI
+app = FastAPI()
+
+class User(BaseModel):
+    username: str
+    password: str
+
+@app.post("/register")
+def register(user: User):
+    return {"registered": user.username}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST /register  body: {"username":"Ali","password":"1234"}
+->  {"registered": "Ali"}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Pydantic with nested model
+from fastapi import FastAPI
+from pydantic import BaseModel
+app = FastAPI()
+
+class Address(BaseModel):
+    city: str
+    country: str
+
+class UserFull(BaseModel):
+    name: str
+    address: Address
+
+@app.post("/signup")
+def signup(user: UserFull):
+    return {"welcome": user.name, "city": user.address.city}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST /signup body: {"name":"Ali","address":{"city":"Lahore","country":"PK"}}
+->  {"welcome": "Ali", "city": "Lahore"}</div>
+  </div>
+
+  <h2>Real Life Examples:</h2><hr class="thin">
+  <ul><li>Path: Search user by ID</li><li>Query: Search, Predict?</li><li>Body: Register user</li></ul>
+
+  <h2>Advance Topics:</h2><hr class="thin">
+  <h3>i) Pydantic Validation:</h3>
+  <p>Pydantic Validation is data validation — uses type hints in the request body. Every time FastAPI uses it, it auto validates.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI
+from pydantic import BaseModel
+app = FastAPI()
+
+class Item(BaseModel):
+    name: str
+    price: float
+
+@app.post("/items")
+def create_item(item: Item):
+    return item</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST /items  body: {"name":"Book","price":9.99}  ->  {"name":"Book","price":9.99}
+# If price is "abc"  ->  422 Validation Error auto!</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Pydantic auto validation check
+from fastapi import FastAPI
+from pydantic import BaseModel
+app = FastAPI()
+
+class Score(BaseModel):
+    student: str
+    marks: int
+
+@app.post("/score")
+def add_score(score: Score):
+    grade = "A" if score.marks >= 80 else "B"
+    return {"student": score.student, "grade": grade}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST /score  body: {"student":"Ali","marks":85}  ->  {"student":"Ali","grade":"A"}
+POST /score  body: {"student":"Ali","marks":"x"}  ->  422 Validation Error</div>
+  </div>
+</div>
+
+<!-- ═══ PAGES 7-15 abbreviated for space — same structure ═══ -->
+<!-- PAGE 7 -->
+<div class="page">
+  <div class="page-num">Page 7</div>
+  <h2>Validate Incoming Data:</h2><hr class="thin">
+  <ul><li>Validate incoming data against the model</li><li>Convert type (if needed)</li><li>Check if type(s) is int — if validation fails, return error</li></ul>
+
+  <h3>Basic Model (Data Shape):</h3>
+  <p>class User(BaseModel) — BaseModel acts as a class that describes the structure of your data.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from pydantic import BaseModel
+
+class User(BaseModel):
+    name: str
+    age: int
+
+u = User(name="Ali", age=25)
+print(u)</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span>
+name="Ali" age=25
+# User(name="Ali", age="hello")  ->  ValidationError</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># BaseModel with default values
+from pydantic import BaseModel
+from typing import Optional
+
+class Profile(BaseModel):
+    username: str
+    bio: Optional[str] = "No bio yet"
+    followers: int = 0
+
+p = Profile(username="ali")
+print(p)</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span> username="ali" bio="No bio yet" followers=0</div>
+  </div>
+
+  <h3>Field() — Constants and Metadata:</h3>
+  <p>Field() is used to add validation rules and metadata (description, min/max length, etc.)</p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from pydantic import BaseModel, Field
+
+class User(BaseModel):
+    email: str = Field(min_length=5)
+    name:  str = Field(min_length=2, max_length=50)
+    age:   int = Field(ge=1, le=120)</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span>
+User(email="a@b.c", name="Ali", age=25)  ->  valid
+User(email="a", ...)  ->  ValidationError: min_length</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Field with description for Swagger docs
+from pydantic import BaseModel, Field
+
+class Product(BaseModel):
+    name:  str   = Field(..., description="Product name", min_length=2)
+    price: float = Field(..., description="Price in USD", gt=0)
+    qty:   int   = Field(default=1, description="Quantity", ge=1)
+
+p = Product(name="Book", price=9.99)
+print(p)</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span> name="Book" price=9.99 qty=1</div>
+  </div>
+</div>
+
+<!-- PAGE 8 -->
+<div class="page">
+  <div class="page-num">Page 8</div>
+  <h2>Metadata (Extra Information):</h2><hr class="thin">
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from pydantic import BaseModel, Field
+
+class Product(BaseModel):
+    name:        str   = Field(min_length=2, description="product name")
+    description: str   = Field(description="description", example="nice")
+    price:       float = Field(description="price", example=9.99)</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span> -> Swagger UI shows these descriptions automatically at /docs</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># metadata with alias
+from pydantic import BaseModel, Field
+
+class Item(BaseModel):
+    item_name: str   = Field(alias="name", min_length=1)
+    item_cost: float = Field(alias="cost", gt=0)
+
+i = Item(**{"name": "Pen", "cost": 1.5})
+print(i)</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span> item_name="Pen" item_cost=1.5</div>
+  </div>
+
+  <h2>EmailStr:</h2><hr class="thin">
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from pydantic import BaseModel, EmailStr
+
+class UserModel(BaseModel):
+    name:  str
+    email: EmailStr
+
+u = UserModel(name="Ali", email="ali@example.com")
+print(u)</div>
+    <div class="code-run"><span>▶ Run:</span> pip install "pydantic[email]" then python main.py</div>
+    <div class="code-output"><span>📤 Output:</span>
+name="Ali" email="ali@example.com"
+# ali@.com  ->  raises ValidationError</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># EmailStr in FastAPI registration
+from fastapi import FastAPI
+from pydantic import BaseModel, EmailStr
+app = FastAPI()
+
+class Register(BaseModel):
+    username: str
+    email:    EmailStr
+
+@app.post("/register")
+def register(data: Register):
+    return {"user": data.username, "email": data.email}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST /register  body: {"username":"Ali","email":"ali@mail.com"}
+->  {"user": "Ali", "email": "ali@mail.com"}</div>
+  </div>
+
+  <h2>Optional Field in Pydantic:</h2><hr class="thin">
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from pydantic import BaseModel
+from typing import Optional
+
+class Product(BaseModel):
+    name:  Optional[str] = None
+    email: Optional[str] = None</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span>
+Product()              ->  name=None email=None  (no error)
+Product(name="Book")   ->  name="Book" email=None</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Optional with default value
+from pydantic import BaseModel
+from typing import Optional
+
+class Config(BaseModel):
+    theme:    Optional[str]  = "light"
+    language: Optional[str]  = "en"
+    debug:    Optional[bool] = False
+
+c = Config()
+print(c)
+c2 = Config(theme="dark")
+print(c2)</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span>
+theme="light" language="en" debug=False
+theme="dark"  language="en" debug=False</div>
+  </div>
+
+  <h3>Optional Parameters:</h3>
+  <ul><li>Without optional: must provide a value, otherwise give error</li><li>With optional: default value assigned None, not required</li></ul>
+</div>
+
+<!-- PAGE 9 -->
+<div class="page">
+  <div class="page-num">Page 9</div>
+  <h2>i) Optional with Path, Body, Parameters:</h2><hr class="thin">
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI
+from typing import Optional
+app = FastAPI()
+
+@app.get("/products")
+def get_products(category: Optional[str] = None, limit: int = 10):
+    return {"category": category, "limit": limit}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /products               ->  {"category": null, "limit": 10}
+GET /products?category=bags ->  {"category": "bags", "limit": 10}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Optional path + body together (PATCH)
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import Optional
+app = FastAPI()
+
+class Update(BaseModel):
+    name:  Optional[str] = None
+    email: Optional[str] = None
+
+@app.patch("/users/{uid}")
+def update(uid: int, data: Update):
+    return {"id": uid, "updates": data}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+PATCH /users/1  body: {"name":"Ali"}
+->  {"id":1,"updates":{"name":"Ali","email":null}}</div>
+  </div>
+
+  <h3>ii) Optional with Header:</h3>
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, Header
+from typing import Optional
+app = FastAPI()
+
+@app.get("/discover")
+def discover(api_key: Optional[str] = Header(None)):
+    if api_key is None:
+        return {"detail": "No key"}
+    return {"received_api_key": api_key}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /discover  (no header)     ->  {"detail": "No key"}
+GET /discover  api-key: abc123 ->  {"received_api_key": "abc123"}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Required header example
+from fastapi import FastAPI, Header, HTTPException
+app = FastAPI()
+
+@app.get("/secure")
+def secure_route(x_token: str = Header(...)):
+    if x_token != "secret123":
+        raise HTTPException(status_code=403, detail="Invalid token")
+    return {"status": "Authorized"}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /secure  x-token: secret123  ->  {"status": "Authorized"}
+GET /secure  x-token: wrong      ->  403 Invalid token</div>
+  </div>
+
+  <h2>Status Code:</h2><hr class="thin">
+  <ul><li>200 — success</li><li>201 — created</li><li>400 — client error</li><li>404 — not found</li><li>500 — server error</li></ul>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI
+app = FastAPI()
+
+@app.get("/", status_code=200)
+def home():
+    return {"message": "ok"}
+
+@app.post("/create", status_code=201)
+def create():
+    return {"message": "created"}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /        ->  200 OK       {"message": "ok"}
+POST /create ->  201 Created  {"message": "created"}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Using status module constants
+from fastapi import FastAPI, status
+app = FastAPI()
+
+@app.get("/health", status_code=status.HTTP_200_OK)
+def health():
+    return {"status": "healthy"}
+
+@app.post("/data", status_code=status.HTTP_201_CREATED)
+def add_data():
+    return {"result": "data added"}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /health  ->  200  {"status": "healthy"}
+POST /data   ->  201  {"result": "data added"}</div>
+  </div>
+</div>
+
+<!-- PAGE 10 -->
+<div class="page">
+  <div class="page-num">Page 10</div>
+  <h2>Common Status Codes — Returning Custom Status Code:</h2><hr class="thin">
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
+app = FastAPI()
+
+@app.get("/", status_code=status.HTTP_200_OK)
+def home():
+    return {"message": "ok"}
+
+@app.post("/users")
+def create_user():
+    current = {"name": "Ali"}
+    return JSONResponse(content=current, status_code=201)</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /       ->  200  {"message": "ok"}
+POST /users ->  201  {"name": "Ali"}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Return different status codes based on logic
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+app = FastAPI()
+
+users = {"ali": "pass123"}
+
+@app.post("/login")
+def login(username: str, password: str):
+    if username in users and users[username] == password:
+        return JSONResponse({"status": "logged in"}, status_code=200)
+    return JSONResponse({"error": "Invalid"}, status_code=401)</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST /login?username=ali&password=pass123  ->  200 {"status": "logged in"}
+POST /login?username=ali&password=wrong    ->  401 {"error": "Invalid"}</div>
+  </div>
+
+  <h3>model.dump() — convert Pydantic into Python dictionary:</h3>
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from pydantic import BaseModel
+
+class User(BaseModel):
+    name: str
+    age: int
+
+user = User(name="Ali", age=25)
+print(user.model_dump())</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span> {'name': 'Ali', 'age': 25}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># model.dump() with exclude fields (hide password)
+from pydantic import BaseModel
+
+class User(BaseModel):
+    name:     str
+    age:      int
+    password: str
+
+user = User(name="Ali", age=25, password="secret")
+safe_data = user.model_dump(exclude={"password"})
+print(safe_data)</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span> {'name': 'Ali', 'age': 25}  # password excluded safely!</div>
+  </div>
+</div>
+
+<!-- PAGE 11 -->
+<div class="page">
+  <div class="page-num">Page 11</div>
+  <h2>Exception Handling:</h2><hr class="thin">
+  <p>FastAPI is the standard way to return a non-200 response in JSON body.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, HTTPException
+app = FastAPI()
+
+@app.get("/users/{id}")
+def get_user(id: int):
+    user = None
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /users/99  ->  404  {"detail": "User not found"}
+GET /users/1   ->  200  (if user exists)</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Multiple exception types
+from fastapi import FastAPI, HTTPException
+app = FastAPI()
+
+products = {1: "Laptop", 2: "Phone"}
+
+@app.get("/products/{pid}")
+def get_product(pid: int):
+    if pid <= 0:
+        raise HTTPException(status_code=400, detail="ID must be positive")
+    if pid not in products:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return {"product": products[pid]}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /products/0  ->  400 "ID must be positive"
+GET /products/9  ->  404 "Product not found"
+GET /products/1  ->  200 {"product": "Laptop"}</div>
+  </div>
+
+  <h3>Global Exception Handler:</h3>
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import HTTPException
+app = FastAPI()
+
+@app.exception_handler(HTTPException)
+def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail}
+    )</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> Any HTTPException  ->  handled globally with custom format</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Global 404 custom handler
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+app = FastAPI()
+
+@app.exception_handler(404)
+async def not_found(request: Request, exc):
+    return JSONResponse(
+        {"error": "Page not found", "path": str(request.url)},
+        status_code=404
+    )</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> GET /nonexistent  ->  404 {"error":"Page not found","path":"http://..."}</div>
+  </div>
+
+  <h4>Login Example:</h4>
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, HTTPException
+app = FastAPI()
+
+@app.post("/login")
+def login(username: str, password: str):
+    if username == "admin" and password == "1234":
+        return {"status": "login successful"}
+    raise HTTPException(status_code=403, detail="Invalid credentials")</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST /login?username=admin&password=1234  ->  200 {"status":"login successful"}
+POST /login?username=admin&password=bad   ->  403 {"detail":"Invalid credentials"}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Login with token response
+from fastapi import FastAPI, HTTPException
+app = FastAPI()
+
+USERS = {"ali": "pass123", "sara": "mypass"}
+
+@app.post("/login")
+def login(username: str, password: str):
+    if USERS.get(username) == password:
+        return {"token": f"token-{username}", "type": "bearer"}
+    raise HTTPException(403, "Wrong credentials")</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST username=ali&password=pass123  ->  {"token":"token-ali","type":"bearer"}
+POST username=ali&password=wrong    ->  403 {"detail":"Wrong credentials"}</div>
+  </div>
+</div>
+
+<!-- PAGE 12 -->
+<div class="page">
+  <div class="page-num">Page 12</div>
+  <h2>Full Example — Validation, Optional, Status Code, Exception:</h2><hr class="thin">
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, HTTPException, status
+from pydantic import BaseModel, Field
+from typing import Optional
+app = FastAPI()
+
+class User(BaseModel):
+    name:  str = Field(min_length=2)
+    age:   int = Field(ge=1, le=120)
+    email: Optional[str] = None
+
+@app.post("/users", status_code=201)
+def create_user(user: User):
+    if user.age < 18:
+        raise HTTPException(400, "Must be 18+")
+    return {"created": user.name}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+POST /users  {"name":"Ali","age":25}  ->  201 {"created":"Ali"}
+POST /users  {"name":"Ali","age":10}  ->  400 "Must be 18+"</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Full example with GET + validation
+from fastapi import FastAPI, HTTPException
+from typing import Optional
+app = FastAPI()
+
+db = {1: "Ali", 2: "Sara", 3: "Ahmed"}
+
+@app.get("/users/{uid}")
+def get_user(uid: int, show_upper: Optional[bool] = False):
+    if uid not in db:
+        raise HTTPException(404, "Not found")
+    name = db[uid]
+    return {"name": name.upper() if show_upper else name}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /users/1                 ->  {"name": "Ali"}
+GET /users/1?show_upper=true ->  {"name": "ALI"}
+GET /users/99                ->  404 "Not found"</div>
+  </div>
+
+  <h2>Dependency Injection (DI):</h2><hr class="thin">
+  <div class="def-box"><b>Definition of DI:</b> Dependency Injection is a design pattern where FastAPI automatically provides required resources (like database connections, authentication checks) to your route functions — so you don't have to create them manually every time inside each function.</div>
+
+  <h3>Problem without DI:</h3>
+  <ul><li>Duplicate code everywhere</li><li>Write same logic inside every function</li><li>Hard to test and maintain</li></ul>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># WITHOUT DI — duplicate DB code (BAD)
+import sqlite3
+
+def get_user():
+    conn   = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM user")
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+def get_product():
+    conn   = sqlite3.connect("database.db")  # repeated!
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM products")
+    result = cursor.fetchall()
+    conn.close()
+    return result</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span> Both functions connect to DB separately — code duplication problem!</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Duplication problem clearly shown
+def check_auth_route1():
+    token = "abc"  # duplicated in every route
+    if token != "secret": return "Denied"
+    return "Route 1 data"
+
+def check_auth_route2():
+    token = "abc"  # same code again!
+    if token != "secret": return "Denied"
+    return "Route 2 data"
+
+# With DI: write auth logic ONCE, inject everywhere!</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span> This shows WHY DI is needed — eliminate code repetition</div>
+  </div>
+</div>
+
+<!-- PAGE 13 -->
+<div class="page">
+  <div class="page-num">Page 13</div>
+  <h2>i) Authentication Logic Repeated Without DI:</h2><hr class="thin">
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, HTTPException
+app = FastAPI()
+
+def get_public_token():
+    return "public-token"
+
+def get_private_token():
+    token = "secret-token"
+    if token != "secret-token":
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return token</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span> Each function handles auth separately -> duplicate logic!</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Auth duplication across routes (problem)
+from fastapi import FastAPI, HTTPException, Header
+from typing import Optional
+app = FastAPI()
+
+@app.get("/page1")
+def page1(x_token: Optional[str] = Header(None)):
+    if x_token != "mytoken":
+        raise HTTPException(401, "Unauthorized")
+    return {"page": 1}
+
+@app.get("/page2")
+def page2(x_token: Optional[str] = Header(None)):
+    if x_token != "mytoken":  # same check again!
+        raise HTTPException(401, "Unauthorized")
+    return {"page": 2}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> Both routes repeat same auth check — DI solves this!</div>
+  </div>
+
+  <h3>iii) Global Variables — Silent Bugs?</h3>
+  <p>Using global variables inside routes creates silent bugs — state is shared across all requests.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code: Global Variable Silent Bug (Problem)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI
+app = FastAPI()
+
+# ❌ SILENT BUG — global variable shared across all users!
+request_count = 0
+
+@app.get("/count")
+def get_count():
+    global request_count
+    request_count += 1          # all users share this!
+    return {"count": request_count}
+
+# User A visits -> count = 1
+# User B visits -> count = 2  (sees User A's data!)
+# This causes WRONG results for every user!</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+User A: GET /count  ->  {"count": 1}
+User B: GET /count  ->  {"count": 2}  ← WRONG! B sees A's state
+User C: GET /count  ->  {"count": 3}  ← WRONG! shared global bug!</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra: Fix with DI — No Global Variable</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, Depends
+app = FastAPI()
+
+# ✅ FIXED — each request gets its own fresh state via DI
+def get_session():
+    session = {"user_data": None, "request_id": id(object())}
+    return session
+
+@app.get("/data")
+def get_data(session = Depends(get_session)):
+    # Each request gets a NEW session — no sharing!
+    return {"session_id": session["request_id"],
+            "message": "fresh session, no bug!"}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+User A: GET /data  ->  {"session_id": 1234, "message": "fresh session, no bug!"}
+User B: GET /data  ->  {"session_id": 5678, "message": "fresh session, no bug!"}
+Each user gets THEIR OWN fresh session — bug fixed with DI! ✅</div>
+  </div>
+
+  <h3>iv) History?</h3>
+  <p>DI pattern comes from software engineering to make code clean, reusable, and testable.</p>
+
+  <h4>v) Definition One-line:</h4>
+  <div class="def-box">"DI = Let FastAPI call a function for you before your route runs, and inject its result."</div>
+
+  <div class="def-box" style="border-left-color:#16a34a; background:#f0fdf4; margin-top:8px;">
+    <b>🔵 Another Definition of DI:</b><br><br>
+    <b>Dependency Injection</b> is like a <b>waiter in a restaurant</b>. You (the route function) don't go to the kitchen yourself to get ingredients (DB, auth, config). Instead, the waiter (FastAPI) brings everything you need automatically before you start working.<br><br>
+    In technical terms: <i>"DI is a technique where an object or function receives the things it depends on (its dependencies) from an external source rather than creating them itself."</i><br><br>
+    ✅ <b>Result:</b> Less code duplication, easier testing, cleaner architecture.
+  </div>
+
+  <h2>How DI Works:</h2><hr class="thin">
+  <p>FastAPI uses the Dependency function. You write a dependency function and FastAPI calls it for you before your route, then injects the result.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code: with DI — Solve Problem</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">import sqlite3
+from fastapi import FastAPI, Depends
+app = FastAPI()
+
+def get_db():
+    conn = sqlite3.connect("database.db")
+    try:
+        yield conn
+    finally:
+        conn.close()   # auto cleanup!
+
+@app.get("/users")
+def get_users(db = Depends(get_db)):
+    cursor = db.execute("SELECT * FROM users")
+    return cursor.fetchall()</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /users  ->  returns all users from DB
+DB connection created and closed automatically!</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># DI with authentication dependency (written ONCE)
+from fastapi import FastAPI, Depends, HTTPException, Header
+from typing import Optional
+app = FastAPI()
+
+def verify_token(x_token: Optional[str] = Header(None)):
+    if x_token != "secret123":
+        raise HTTPException(401, "Invalid token")
+    return x_token
+
+@app.get("/data")
+def get_data(token = Depends(verify_token)):
+    return {"data": "secret data", "token": token}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /data  x-token: secret123  ->  {"data":"secret data","token":"secret123"}
+GET /data  x-token: wrong      ->  401 Invalid token</div>
+  </div>
+</div>
+
+<!-- PAGE 14 -->
+<div class="page">
+  <div class="page-num">Page 14</div>
+  <h2>with DI — Profile Example:</h2><hr class="thin">
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, Depends, HTTPException, Header
+from typing import Optional
+app = FastAPI()
+
+def verify_token(x_token: Optional[str] = Header(None)):
+    if x_token is None:
+        raise HTTPException(status_code=403, detail="Not Found")
+    return x_token
+
+@app.get("/profile")
+def get_profile(token: str = Depends(verify_token)):
+    return {"profile": "Ahmed", "token": token}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /profile  x-token: abc  ->  {"profile":"Ahmed","token":"abc"}
+GET /profile  (no header)   ->  403 "Not Found"</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># DI with query parameter dependency (reusable)
+from fastapi import FastAPI, Depends
+app = FastAPI()
+
+def common_params(skip: int = 0, limit: int = 10):
+    return {"skip": skip, "limit": limit}
+
+@app.get("/items")
+def get_items(params: dict = Depends(common_params)):
+    return {"params": params}
+
+@app.get("/products")
+def get_products(params: dict = Depends(common_params)):
+    return {"params": params}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /items?skip=5&limit=3     ->  {"params":{"skip":5,"limit":3}}
+GET /products?skip=0&limit=5  ->  {"params":{"skip":0,"limit":5}}</div>
+  </div>
+
+  <h2>Dependencies Depend upon Other Dependencies:</h2><hr class="thin">
+  <div class="def-box"><b>Chained Dependencies:</b> Dependencies can depend on other dependencies. FastAPI resolves the entire chain automatically. This is called "nested" or "chained" dependencies — very powerful for layered auth/logic.</div>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, Depends, HTTPException, Header
+from typing import Optional
+app = FastAPI()
+
+def get_token(x_token: Optional[str] = Header(None)):
+    if not x_token:
+        raise HTTPException(401, "Token missing")
+    return x_token
+
+def get_current_user(token: str = Depends(get_token)):
+    return {"user": "Ali", "token": token}
+
+@app.get("/me")
+def get_me(user = Depends(get_current_user)):
+    return user</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /me  x-token: abc  ->  {"user":"Ali","token":"abc"}
+GET /me  (no token)    ->  401 "Token missing"</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># 3-level dependency chain
+from fastapi import FastAPI, Depends
+app = FastAPI()
+
+def dep_a():                     return "A"
+def dep_b(a = Depends(dep_a)):   return f"{a}->B"
+def dep_c(b = Depends(dep_b)):   return f"{b}->C"
+
+@app.get("/chain")
+def chain(c = Depends(dep_c)):
+    return {"chain": c}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> GET /chain  ->  {"chain": "A->B->C"}</div>
+  </div>
+
+  <h2>Benefits of Dependency Injection:</h2><hr class="thin">
+  <div class="def-box">
+    <b>Benefits of DI:</b><br>
+    1️⃣ No code duplication — write once, use everywhere.<br>
+    2️⃣ Clean and readable code.<br>
+    3️⃣ Easy to test — mock/override dependencies in testing.<br>
+    4️⃣ Auto lifecycle management — e.g. DB connection auto-closed with yield.<br>
+    5️⃣ Scalable — add new dependencies without changing route functions.
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># DI benefit: write auth ONCE, use in many routes
+from fastapi import FastAPI, Depends, HTTPException, Header
+from typing import Optional
+app = FastAPI()
+
+def auth(x_token: Optional[str] = Header(None)):
+    if x_token != "valid":
+        raise HTTPException(401, "Denied")
+    return x_token
+
+@app.get("/a", dependencies=[Depends(auth)])
+def route_a(): return {"route": "A"}
+
+@app.get("/b", dependencies=[Depends(auth)])
+def route_b(): return {"route": "B"}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /a  x-token: valid  ->  {"route":"A"}
+GET /b  x-token: valid  ->  {"route":"B"}
+GET /a  (no token)      ->  401 Denied</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># DI benefit: easy mocking in tests
+from fastapi import FastAPI, Depends
+from fastapi.testclient import TestClient
+app = FastAPI()
+
+def get_db():
+    return {"db": "real_database"}
+
+@app.get("/data")
+def get_data(db = Depends(get_db)):
+    return db
+
+# Override with fake DB in tests
+def fake_db():
+    return {"db": "test_database"}
+
+app.dependency_overrides[get_db] = fake_db
+client = TestClient(app)
+print(client.get("/data").json())</div>
+    <div class="code-run"><span>▶ Run:</span> python main.py</div>
+    <div class="code-output"><span>📤 Output:</span> {"db": "test_database"}  # Using fake DB in tests!</div>
+  </div>
+</div>
+
+<!-- PAGE 15 -->
+<div class="page">
+  <div class="page-num">Page 15</div>
+  <h2>Class Based DI:</h2><hr class="thin">
+  <div class="def-box"><b>Class Based DI:</b> When a dependency has parameters (like search, filters, pagination), you can wrap it in a class. FastAPI will instantiate the class automatically and inject it using Depends().</div>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, Depends
+app = FastAPI()
+
+class QueryMaker:
+    def __init__(self, search: str = ""):
+        self.search = search
+
+@app.get("/search")
+def search_item(Filters: QueryMaker = Depends()):
+    return {"search": Filters.search}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /search             ->  {"search": ""}
+GET /search?search=Ali  ->  {"search": "Ali"}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Class Based DI with multiple params (pagination)
+from fastapi import FastAPI, Depends
+app = FastAPI()
+
+class PaginationParams:
+    def __init__(self, page: int = 1, size: int = 10, sort: str = "asc"):
+        self.page = page
+        self.size = size
+        self.sort = sort
+
+@app.get("/products")
+def list_products(params: PaginationParams = Depends()):
+    return {"page": params.page, "size": params.size, "sort": params.sort}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /products                          ->  {"page":1,"size":10,"sort":"asc"}
+GET /products?page=2&size=5&sort=desc  ->  {"page":2,"size":5,"sort":"desc"}</div>
+  </div>
+
+  <h2>Query Parameter with DI:</h2><hr class="thin">
+  <div class="def-box"><b>Query Parameter with DI:</b> You can pass query parameters through a dependency function. This keeps route functions clean and reuses the same query logic across multiple endpoints without repeating code.</div>
+
+  <div class="code-block">
+    <div class="code-header"><span>Code:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body">from fastapi import FastAPI, Depends
+from typing import Optional
+app = FastAPI()
+
+def search_filter(q: Optional[str] = None, limit: int = 5):
+    return {"q": q, "limit": limit}
+
+@app.get("/books")
+def get_books(filters = Depends(search_filter)):
+    return {"books_filter": filters}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span> GET /books?q=python&limit=3  ->  {"books_filter":{"q":"python","limit":3}}</div>
+  </div>
+
+  <div class="code-block extra">
+    <div class="code-header"><span>✨ Extra Code Example:</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-body"># Reuse same query filter across multiple routes
+from fastapi import FastAPI, Depends
+from typing import Optional
+app = FastAPI()
+
+def common_filter(search: Optional[str] = None, page: int = 1):
+    return {"search": search, "page": page}
+
+@app.get("/users")
+def get_users(f = Depends(common_filter)):
+    return {"users_filter": f}
+
+@app.get("/orders")
+def get_orders(f = Depends(common_filter)):
+    return {"orders_filter": f}</div>
+    <div class="code-run"><span>▶ Run:</span> uvicorn main:app --reload</div>
+    <div class="code-output"><span>📤 Output:</span>
+GET /users?search=Ali   ->  {"users_filter":{"search":"Ali","page":1}}
+GET /orders?page=2      ->  {"orders_filter":{"search":null,"page":2}}</div>
+  </div>
+</div>
+
+</div><!-- end container -->
+
+<script>
+function copyCode(btn) {
+  const block = btn.closest('.code-block');
+  const codeBody = block.querySelector('.code-body');
+  const text = codeBody.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
